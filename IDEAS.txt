@@ -1,0 +1,20 @@
+Spotify Genre
+	
+
+Weather
+
+Some math thing
+	Quarternion
+
+
+Enimga Machine or some other code
+
+
+Can I drop this assigment
+	calculates how much a weighted grade will drop if an assigment is skipped
+
+	> accepts list of grades & their weight. Maybe a json,yaml. of excel
+	>A gui to show which assigment to drop or allow inputting of a custom one
+
+	>realtime update
+	
