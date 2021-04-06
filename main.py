@@ -30,6 +30,14 @@ def importjson(FilePath = None):
     print("json succesfully loaded!")
     return data
     
+def exportjson(data):
+    print("This hasn't been built yet :(")
+    # for x in data:
+
+    # with open file(path, w) as file:
+    #     json.dump(data,f)
+
+    
 def lettergrade(NumberGrade):
     #really hate how this is done but i'm too tired to think of a better way
     if NumberGrade >= 93:
@@ -56,6 +64,19 @@ def lettergrade(NumberGrade):
         LetterReturn = "F"
     return LetterReturn
 
+def WAvgcalc(grades):
+    #calculates weighted avergage
+    returngrade = [0,""]
+    denom = 0
+    for x in grades:
+        returngrade[0] += x[1] * x[2]
+        denom += x[2]
+
+
+    returngrade[0] = round(returngrade[0]/denom,2)
+    returngrade[1] = lettergrade(returngrade[0])
+    return returngrade
+
 def filepathGUI():
     #adds a gui ontop of the code
     sg.theme('DarkPurple')
@@ -74,6 +95,7 @@ def filepathGUI():
         window.close()
         sys.exit()
     if event in (sg.WIN_CLOSED, 'OK'):
+            window.close()
             return values[0]
     
 def tableValGen(data):
@@ -81,7 +103,7 @@ def tableValGen(data):
     for i in range(0,len(data["grades"])):
         #values() function does not work here for some reason :(
         #takes the key values from the dictionary and appends them to nested list for the table constructer
-        templist = [data["grades"][i]["name"],data["grades"][i]["grade"],data["grades"][i]["weight"],sg.Checkbox(text = "Drop")]
+        templist = [data["grades"][i]["name"],data["grades"][i]["grade"],data["grades"][i]["weight"]]
         returnlist.append(templist)
     return returnlist    
 
@@ -91,35 +113,63 @@ def gradeGUI(data,finalgrade):
     extraGrades = []
     gradesval = tableValGen(data)
     #gradesval.append(extraGrades)
-
-    layout = [[sg.Table(values = gradesval,
-        headings = ["Name", "Grade", "Weight"],
-        num_rows = 10,
-        alternating_row_color="#0C0A3C",
-        #enable_events= True,
-        bind_return_key=True,
-        key="TableDClick",
-        vertical_scroll_only = True)],
-        [sg.Button(button_text = "Add New Grade", auto_size_button=True,key = "AddGrade")],
-        [sg.Text(f"{finalgrade[0]}%"),sg.VerticalSeparator(pad=(1,1)),sg.VerticalSeparator(pad=(1,1)),sg.Text(finalgrade[1])]]
+    
+    layout = [
+        [
+            sg.Text(text = data["type"] + " " +data["name"],  font = ("any",20,"bold")) #f strings don't work here so I did it the trad way
+        ],
+        [
+            sg.Table(values = gradesval,
+            headings = [
+                "Name",
+                "Grade",
+                "Weight"
+            ],
+            num_rows = 10,
+            alternating_row_color="#0C0A3C",
+            #enable_events= True,
+            bind_return_key=True,
+            key="TableDClick",
+            vertical_scroll_only = True)
+        ],
+        [
+            sg.Button(button_text = "Add New Grade", auto_size_button=True,key = "AddGrade"),
+            sg.Button(button_text = "Update Json", auto_size_button=True,key= "UpdateJson")
+        ],
+        [
+            sg.Text(text = f"{finalgrade[0]}%", key="numberGrade"),
+            sg.VerticalSeparator(pad=(1,1)),
+            sg.VerticalSeparator(pad=(1,1)),
+            sg.Text(text = finalgrade[1], key="letterGrade")
+        ]
+    ]
 
     window = sg.Window('Grade Calculator', layout)         
-    while True:             
+    while True:               
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
         if event == "AddGrade":
-            print("piss")
-            gradepopupGUI()
+            print("AddGrade")
+            b = gradepopupGUI()
+            if b != None:
+                gradesval.append(b)
+                window["TableDClick"].Update(values = gradesval) #updates table.
+                valupdate = WAvgcalc(gradesval)
+                window["numberGrade"].Update(value= f"{valupdate[0]}%")
+                window["letterGrade"].Update(value = f"{valupdate[1]}")
         if event == "TableDClick":
-            print(values)
-            #Modify Grade function
-            b = gradepopupGUI(gradesval[values["TableDClick"][0]]) #uses to event values to find the list index, probably the wrong way to do this
-            #str(5)
-            gradesval[values["TableDClick"][0]] = b
-            window.refresh()
-            
-    # event, values = window.read()
+            print("UpdateGrade")
+
+            b = gradepopupGUI(gradesval[values["TableDClick"][0]],mod = True)
+            if b != None:
+                gradesval[values["TableDClick"][0]] = b #uses to event values to find the list index, probably the wrong way to do this
+                window["TableDClick"].Update(values = gradesval) #updates table.
+                valupdate = WAvgcalc(gradesval)
+                window["numberGrade"].Update(value= f"{valupdate[0]}%")
+                window["letterGrade"].Update(value = f"{valupdate[1]}")
+        if event =="UpdateJson":
+            exportjson(gradesval)
 
 
 
@@ -152,6 +202,7 @@ def gradepopupGUI(curDat = ["Name","Score","Weight"],mod = False):
                 #to make sure **someone** doesnt not change anything and brick it
                 window.close()
                 break
+            
 
             print(values)
             neovalues = [values[0],float(values[1]),float(values[2])] #for some reason the values is a dictionary instead of a list
@@ -163,22 +214,27 @@ def gradepopupGUI(curDat = ["Name","Score","Weight"],mod = False):
 
 def main():
     
-    # try:
-    #     data = importjson(filepathGUI())
-
-    # except:
-    #     print("File Picking cancelled, exiting")
-    #     sys.exit()
-    data = importjson("ExampleGrades/grades.json") #bypasses the file picker GUI, for testing only
+    try:
+       filepath = filepathGUI()
+       data = importjson(filepath)
+    except:
+        print("File Picking cancelled, exiting")
+        sys.exit()
+    # data = importjson("ExampleGrades/grades.json") #bypasses the file picker GUI, for testing only
     
     finalgrade = [0,""]
 
     print(type(data["grades"]))
 
+    denom = 0
     for x in data["grades"]:
         #loops through grade list and creates weighted average
-       wg = round(x["grade"] * x["weight"],3)
+
+       denom += x["weight"]
+       wg = (x["grade"]) * (x["weight"])
        finalgrade[0] += wg 
+    finalgrade[0] = round(finalgrade[0]/denom,2)
+    
     finalgrade[0] = round(finalgrade[0],2)
 
     finalgrade[1] = lettergrade(finalgrade[0])
@@ -187,18 +243,11 @@ def main():
 
     
     #f-strings sure are funky
-    print(f'Final Grade: \n {data["type"]} {data["name"]}: \n {finalgrade[0]}% ::: {finalgrade[1]}')
-
-
-
-
-
-
+   #print(f'Final Grade: \n {data["type"]} {data["name"]}: \n {finalgrade[0]}% ::: {finalgrade[1]}')
 
 
 
 
 if __name__ == main():
     main()
-    print("Wtf")
 
