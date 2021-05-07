@@ -2,7 +2,7 @@
 import json
 import PySimpleGUI as sg
 import sys
-#import sys
+
 
 def importjson(FilePath = None):
     if type(FilePath) == None:
@@ -32,21 +32,16 @@ def importjson(FilePath = None):
     
 def exportjson(ngrades,fpath,data):
     #setup things
-    data["grades"] = [] #empties the grades section to allow for quick appending
-    #ngrades = ngrades.sort() #sorts it into something FOR SOME REASON JUST EMPTIES THE LIST??!
-
+    data["grades"] = [] #empties the grades section to make sure no duplicates arise
+    #ngrades = ngrades.sort() #FOR SOME REASON JUST EMPTIES THE LIST??!
 
     for x in ngrades:
         #creates dictionary used to store grades and appends it to now empty grades list
-        tmpdict = {"grade": x[1],"name": x[0],"weight": x[2]}
+        tmpdict = {"name": x[0],"grade": x[1],"weight": x[2]}
         data["grades"].append(tmpdict)
 
-
     with open(fpath, 'w') as json_out:
-        json_out.dump(data,f,indent=5)
-
-    #     with open('myfile.json', 'w', encoding ='utf8') as json_file:
-    # json.dump(d, json_file, allow_nan=False)
+        json.dump(data,json_out,indent=4)
 
 
     
@@ -110,6 +105,7 @@ def filepathGUI():
             window.close()
             return values[0]
     
+
 def tableValGen(data):
     returnlist = []
     for i in range(0,len(data["grades"])):
@@ -146,8 +142,7 @@ def gradeGUI(data,finalgrade):
         ],
         [
             sg.Button(button_text = "Add New Grade", auto_size_button=True,key = "AddGrade"),
-            sg.FileSaveAs(button_text = "Save Json", auto_size_button=True,key= "SaveJson",target = "SaveAs", default_extension = ".json")
-            # sg.Button(button_text = "Update Json", auto_size_button=True,key= "UpdateJson") #Put save as dialog here
+            sg.FileSaveAs(button_text = "Save Json", auto_size_button=True,key= "SaveJson",target = "SaveAs", default_extension = ".json") #starts save-as dialog. default extension doesnt work
         ],
         [
             sg.Text(text = f"{finalgrade[0]}%", key="numberGrade"),
@@ -159,7 +154,7 @@ def gradeGUI(data,finalgrade):
             #Put hidden stuff here for saving
             #make SaveAs dialog point here.
             #events enabled to allow for one-button save-as. When this is filled in by the SaveAs button it triggers an event
-            sg.Input(tooltip = "How in the hell are you seeing this?", enable_events = True, key = "SaveAs", focus = False, visible = False, disabled = True)
+            sg.Input(enable_events = True, key = "SaveAs", focus = False, visible = False, disabled = True)
         ]
     ]
     window = sg.Window('Grade Calculator', layout)         
@@ -263,8 +258,6 @@ def main():
     
     #f-strings sure are funky
    #print(f'Final Grade: \n {data["type"]} {data["name"]}: \n {finalgrade[0]}% ::: {finalgrade[1]}')
-
-
 
 
 if __name__ == main():

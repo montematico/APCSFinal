@@ -1,0 +1,46 @@
+{
+    "name": "History",
+    "type": "AP",
+    "grades": [
+        {
+            "grade": 80,
+            "name": "Quiz #13",
+            "weight": 20
+        },
+        {
+            "grade": 90,
+            "name": "Quiz #12",
+            "weight": 30
+        },
+        {
+            "grade": 100,
+            "name": "Quiz #11",
+            "weight": 40
+        },
+        {
+            "grade": 87.5,
+            "name": "Quiz #10",
+            "weight": 20
+        },
+        {
+            "grade": 23,
+            "name": "Quiz #9",
+            "weight": 30
+        },
+        {
+            "grade": 32,
+            "name": "Presentation",
+            "weight": 60
+        },
+        {
+            "grade": 37,
+            "name": "Exam",
+            "weight": 80
+        },
+        {
+            "grade": 1.0,
+            "name": "cum",
+            "weight": 2.0
+        }
+    ]
+}
