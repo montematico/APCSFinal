@@ -30,12 +30,24 @@ def importjson(FilePath = None):
     print("json succesfully loaded!")
     return data
     
-def exportjson(data):
-    print("This hasn't been built yet :(")
-    # for x in data:
+def exportjson(ngrades,fpath,data):
+    #setup things
+    data["grades"] = [] #empties the grades section to allow for quick appending
+    #ngrades = ngrades.sort() #sorts it into something FOR SOME REASON JUST EMPTIES THE LIST??!
 
-    # with open file(path, w) as file:
-    #     json.dump(data,f)
+
+    for x in ngrades:
+        #creates dictionary used to store grades and appends it to now empty grades list
+        tmpdict = {"grade": x[1],"name": x[0],"weight": x[2]}
+        data["grades"].append(tmpdict)
+
+
+    with open(fpath, 'w') as json_out:
+        json_out.dump(data,f,indent=5)
+
+    #     with open('myfile.json', 'w', encoding ='utf8') as json_file:
+    # json.dump(d, json_file, allow_nan=False)
+
 
     
 def lettergrade(NumberGrade):
@@ -134,17 +146,24 @@ def gradeGUI(data,finalgrade):
         ],
         [
             sg.Button(button_text = "Add New Grade", auto_size_button=True,key = "AddGrade"),
-            sg.Button(button_text = "Update Json", auto_size_button=True,key= "UpdateJson")
+            sg.FileSaveAs(button_text = "Save Json", auto_size_button=True,key= "SaveJson",target = "SaveAs", default_extension = ".json")
+            # sg.Button(button_text = "Update Json", auto_size_button=True,key= "UpdateJson") #Put save as dialog here
         ],
         [
             sg.Text(text = f"{finalgrade[0]}%", key="numberGrade"),
             sg.VerticalSeparator(pad=(1,1)),
             sg.VerticalSeparator(pad=(1,1)),
             sg.Text(text = finalgrade[1], key="letterGrade")
+        ],
+        [
+            #Put hidden stuff here for saving
+            #make SaveAs dialog point here.
+            #events enabled to allow for one-button save-as. When this is filled in by the SaveAs button it triggers an event
+            sg.Input(tooltip = "How in the hell are you seeing this?", enable_events = True, key = "SaveAs", focus = False, visible = False, disabled = True)
         ]
     ]
-
     window = sg.Window('Grade Calculator', layout)         
+
     while True:               
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
@@ -168,8 +187,8 @@ def gradeGUI(data,finalgrade):
                 valupdate = WAvgcalc(gradesval)
                 window["numberGrade"].Update(value= f"{valupdate[0]}%")
                 window["letterGrade"].Update(value = f"{valupdate[1]}")
-        if event =="UpdateJson":
-            exportjson(gradesval)
+        if event =="SaveAs":
+            exportjson(gradesval,values["SaveAs"],data) #passes the updated grades and save-path
 
 
 
