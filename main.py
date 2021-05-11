@@ -6,25 +6,26 @@ import sys
 
 def importjson(FilePath = None):
     if type(FilePath) == None:
-        #ask user for input on file location
+        #ask user for input on file location ignored if filepath is passed when calling
         path = input("What is the path to the json?")
     else:
+        #If filepath is passed by GUI it skips user input
         path = FilePath
-        #take arguments when run
     
-    #loading
+    #loading w/ basic error tracking so it doenst just crash randomly
     try: 
         with open(path) as file:
             data = json.load(file)
     except:
         raise Exception("An error occured while loading json, check filepath")
+
     #formatting check
     try:
         #test a random operation on the first grade to check if present
         float(data["grades"][0]["grade"]) 
     except:
         raise Exception("Could not acess grades, try again")
-    if len(data["grades"]) <= 0:
+    if len(data["grades"]) == 0:
         raise Exception("Grades list is empty, please try again")
 
     print("json succesfully loaded!")
@@ -32,7 +33,7 @@ def importjson(FilePath = None):
     
 def exportjson(ngrades,fpath,data):
     #setup things
-    data["grades"] = [] #empties the grades section to make sure no duplicates arise
+    data["grades"] = [] #empties the grades section to prepare to fill it
     #ngrades = ngrades.sort() #FOR SOME REASON JUST EMPTIES THE LIST??!
 
     for x in ngrades:
@@ -40,13 +41,18 @@ def exportjson(ngrades,fpath,data):
         tmpdict = {"name": x[0],"grade": x[1],"weight": x[2]}
         data["grades"].append(tmpdict)
 
-    with open(fpath, 'w') as json_out:
-        json.dump(data,json_out,indent=4)
-
+    try:
+        with open(fpath, 'w') as json_out:
+            json.dump(data,json_out,indent=4)
+        print(f"saved at {fpath}")
+    except:
+        pass #usually caused by user clicking out of Save-as dialog box which passes an empty value as filepath
+        # print("Error writing. Either some actual error or you clicked out of the Save-as dialog")
 
     
 def lettergrade(NumberGrade):
     #really hate how this is done but i'm too tired to think of a better way
+    #returns Letter grade from float input
     if NumberGrade >= 93:
         LetterReturn = "A"
     elif NumberGrade >= 90:
@@ -72,13 +78,12 @@ def lettergrade(NumberGrade):
     return LetterReturn
 
 def WAvgcalc(grades):
-    #calculates weighted avergage
+    #calculates weighted avergage & letter grade
     returngrade = [0,""]
     denom = 0
     for x in grades:
         returngrade[0] += x[1] * x[2]
         denom += x[2]
-
 
     returngrade[0] = round(returngrade[0]/denom,2)
     returngrade[1] = lettergrade(returngrade[0])
@@ -107,6 +112,7 @@ def filepathGUI():
     
 
 def tableValGen(data):
+    #the Table GUI element requires a list, this function converts the dictionary input into the nested lists it understands
     returnlist = []
     for i in range(0,len(data["grades"])):
         #values() function does not work here for some reason :(
@@ -116,7 +122,7 @@ def tableValGen(data):
     return returnlist    
 
 def gradeGUI(data,finalgrade):
-    #I cannot add a checkbox to the table easily so instead there is a input box to remove a specifc number
+    #I cannot add a checkbox to the table easily so instead double click and edit a grade
     sg.theme('DarkPurple')
     extraGrades = []
     gradesval = tableValGen(data)
