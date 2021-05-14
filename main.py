@@ -1,5 +1,6 @@
 #imports
 import json
+#PysimpleGUI https://pysimplegui.readthedocs.io/en/latest/
 import PySimpleGUI as sg
 import sys
 
@@ -12,7 +13,7 @@ def importjson(FilePath = None):
         #If filepath is passed by GUI it skips user input
         path = FilePath
     
-    #loading w/ basic error tracking so it doenst just crash randomly
+    #loading w/ basic error tracking so it doesnst just crash randomly
     try: 
         with open(path) as file:
             data = json.load(file)
