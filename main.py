@@ -1,9 +1,8 @@
 #imports
 import json
+import sys
 #PysimpleGUI https://pysimplegui.readthedocs.io/en/latest/
 import PySimpleGUI as sg
-import sys
-
 
 def importjson(FilePath = None):
     if type(FilePath) == None:
